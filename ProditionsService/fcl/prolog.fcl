@@ -1,5 +1,5 @@
 #include "TrackerConditions/fcl/prolog.fcl"
-#include "AnalysisConditions/fcl/prolog.fcl"
+#include "CaloConditions/fcl/prolog.fcl"
 
 BEGIN_PROLOG
 
@@ -13,7 +13,8 @@ Proditions : {
    alignedTracker : @local::AlignedTracker
    mu2eMaterial : @local::Mu2eMaterial
    mu2eDetector : @local::Mu2eDetector
-   trkQualCatalog : @local::TrkQualCatalog
+   trackerDAQConditions : @local::TrackerDAQConditions
+   caloDAQConditions : @local::CaloDAQConditions
    verbose : 0
 }
 

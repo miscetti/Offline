@@ -4,26 +4,20 @@
 #
 #
 # Contact person G. Pezzullo
-#include "fcl/minimalMessageService.fcl"
-#include "fcl/standardServices.fcl"
 #include "DAQ/fcl/prolog_trigger.fcl"
 process_name : FragmentToDigi
 
 source : {
-   module_type : RootInput
-   fileNames   : @nil
+  module_type : RootInput
+  fileNames   : @nil
 
-   # firstEvent  : 500
-   maxEvents   : -1
-#   inputCommands: ["keep *", 
-#                   "drop *Mu2eEventHeader*_*_*_*"]
+  # firstEvent  : 500
+  maxEvents   : -1
 }
-
-services : @local::Services.Reco
 
 physics : {
 
-   producers : {
+  producers : {
       makeSD:
       {
 	 @table::DAQ.producers.makeSD
@@ -31,41 +25,33 @@ physics : {
 
       CaloDigiFromShower:		
       {	 
-	 @table::DAQ.producers.CaloDigiFromShower
+	 @table::DAQ.producers.makeSD
       }
-   }
-
-   analyzers  : {
-      readFragments : {
-	 module_type : FragmentAna
-	 diagLevel   : 0
-	 parseCAL    : 1
-	 parseTRK    : 1
-	 caloTag     : "daq:calo"
-	 trkTag      : "daq:trk"
-      }
-   }
+  }
 
    #  t1 : [ makeSD ] 
    t1 : [ makeSD, CaloDigiFromShower ] 
-   e1 : [ readFragments, outfile ]
+   e1 : [ outfile ]
 
-   trigger_paths  : [t1]
-   end_paths      : [e1]
-   #  end_paths      : []
+  trigger_paths  : [t1]
+  end_paths      : [e1]
+#  end_paths      : []
 
 }
 
 outputs:  {
-   outfile :  {
+  outfile :  {
       module_type   :   RootOutput
       fileName      :   "digis_from_frags_debug.art"
-      
-      outputCommands: [ 
-	 "drop *_*_*_*",
-	 "keep *_*_*_*"
-      ]
-   }
-}
 
-services.TFileService.fileName : "generateDigiFromFragment_test.root" 
+      outputCommands: [ "drop *_*_*_*",
+			"keep *_*_*_*"
+		       ]
+#		      "keep mu2e::StrawDigis_makeSD_*_*",
+#		      "keep mu2e::CaloDigis_CaloDigiFromShower_*_*",
+#                      "keep mu2e::DataBlocks_TrackerPacketProducer_*_*",
+#                      "keep mu2e::DataBlocks_CalorimeterPacketProducer_*_*"
+##                      "keep mu2e::DataBlocks_CosmicRayVetoPacketProducer_*_*"
+#                     ]
+  }
+}

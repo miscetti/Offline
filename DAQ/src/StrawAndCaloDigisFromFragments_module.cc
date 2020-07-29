@@ -18,6 +18,7 @@
 #include "DataProducts/inc/TrkTypes.hh"
 #include "RecoDataProducts/inc/StrawDigiCollection.hh"
 #include "RecoDataProducts/inc/CaloDigiCollection.hh"
+#include "ProditionsService/inc/ProditionsHandle.hh"
 
 #include <iostream>
 
@@ -80,6 +81,7 @@ StrawAndCaloDigisFromFragments::StrawAndCaloDigisFromFragments(const art::EDProd
   parseTRK_        (config().parseTRK()),
   trkFragmentsTag_ (config().trkTag()),
   caloFragmentsTag_(config().caloTag()){
+    produces<EventNumber_t>(); 
     if (parseTRK_){
       produces<mu2e::StrawDigiCollection>();
     }
@@ -96,19 +98,11 @@ produce( Event & event )
 {
   art::EventNumber_t eventNumber = event.event();
 
-  // Collection of StrawDigis for the event
-  std::unique_ptr<mu2e::StrawDigiCollection> straw_digis(new mu2e::StrawDigiCollection);
-
-  // Collection of CaloDigis for the event
-  std::unique_ptr<mu2e::CaloDigiCollection> calo_digis(new mu2e::CaloDigiCollection);
-
   art::Handle<artdaq::Fragments> trkFragments, calFragments;
   size_t numTrkFrags(0), numCalFrags(0);
   if (parseTRK_){
     event.getByLabel(trkFragmentsTag_ , trkFragments);
-    if (!trkFragments.isValid()){       
-      std::cout << "[StrawAndCaloDigisFromFragments::produce] found no Tracker fragments!" << std::endl;
-      event.put(std::move(straw_digis));
+    if (!trkFragments.isValid()){            
       return;
     }
     numTrkFrags = trkFragments->size();
@@ -116,8 +110,6 @@ produce( Event & event )
   if (parseCAL_){
     event.getByLabel(caloFragmentsTag_, calFragments);
     if (!calFragments.isValid()){
-      std::cout << "[StrawAndCaloDigisFromFragments::produce] found no Calorimeter fragments!" << std::endl;
-      event.put(std::move(calo_digis));
       return;
     }
     numCalFrags = calFragments->size();
@@ -146,6 +138,13 @@ produce( Event & event )
 
     std::cout << "\tTotal Size: " << (int)totalSize << " bytes." << std::endl;  
   }
+
+  // Collection of StrawDigis for the event
+  std::unique_ptr<mu2e::StrawDigiCollection> straw_digis(new mu2e::StrawDigiCollection);
+
+  // Collection of CaloDigis for the event
+  std::unique_ptr<mu2e::CaloDigiCollection> calo_digis(new mu2e::CaloDigiCollection);
+
   std::string curMode = "TRK";
 
   // Loop over the TRK and CAL fragments
@@ -234,11 +233,20 @@ produce( Event & event )
 
       eventNumber = hdr->GetTimestamp();
       
+      // if(hdr->SubsystemID==0) {
+      // 	mode_ = "TRK";
+      // } else if(hdr->SubsystemID==1) {
+      // 	mode_ = "CAL";
+      // }
+
       if(idx < numTrkFrags){
 	mode_ = mu2e::FragmentType::TRK;//"TRK";
       }else {
 	mode_ = mu2e::FragmentType::CAL;//"CAL";
       }
+      // if(idx>=numTrkFrags && mode_ == "TRK") {
+      // 	printf("[StrawAndCaloDigisFromFragments::produce] wrong mode assigned!\n");
+      // }
 
       // Parse phyiscs information from TRK packets
       if(mode_ == mu2e::FragmentType::TRK && hdr->PacketCount>0 && parseTRK_>0) {
@@ -395,10 +403,10 @@ produce( Event & event )
 	  adc_t crystalID  = hitPkt->DIRACB & 0x0FFF;
 	  adc_t apdID      = hitPkt->DIRACB >> 12;
 
+
 	  calo_digis->emplace_back((crystalID*2 + apdID),
 				   hitPkt->Time,
-				   cwf,
-				   hitPkt->IndexOfMaxDigitizerSample
+				   cwf
 				   );
 
 	  if( diagLevel_ > 1 ) {
@@ -443,11 +451,15 @@ produce( Event & event )
       
   } // Close loop over fragments
 
+  //  }  // Close loop over the TRK and CAL collections
+
   if( diagLevel_ > 0 ) {
     std::cout << "mu2e::StrawAndCaloDigisFromFragments::produce exiting eventNumber=" << (int)(event.event()) << " / timestamp=" << (int)eventNumber <<std::endl;
 
   }
 
+  event.put(std::unique_ptr<EventNumber_t>(new EventNumber_t( eventNumber )));
+  
   // Store the straw digis and calo digis in the event
   if (parseTRK_){
     event.put(std::move(straw_digis));

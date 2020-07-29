@@ -26,6 +26,7 @@ mainlib = helper.make_mainlib ( [ 'mu2e_ConfigTools',
 helper.make_plugins( [ mainlib,
                        'mu2e_TrackerGeom',
                        'mu2e_TrackerConditions',
+                       'mu2e_CaloConditions',
                        'mu2e_Mu2eBTrk',
                        'mu2e_GeometryService',
                        'mu2e_GeomPrimitives',
@@ -33,8 +34,6 @@ helper.make_plugins( [ mainlib,
                        'mu2e_DbTables',
                        'mu2e_Mu2eInterfaces',
                        'mu2e_GeneralUtilities',
-                       'mu2e_Mu2eUtilities',
-                       'mu2e_TrkDiag',
                        'BTrk_DetectorModel',
                        'BTrk_MatEnv',
                        'CLHEP',
@@ -54,8 +53,7 @@ helper.make_plugins( [ mainlib,
                        'cetlib_except',
                        'boost_filesystem',
                        'boost_system',
-                       'pthread',
-                       'xerces-c'
+                       'pthread'
                        ] )
 
 #BINLIBS   = [ mainlib, 'mu2e_DbExample' , 'cetlib', 'cetlib_except', "pq" ]

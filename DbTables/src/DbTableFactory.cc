@@ -11,7 +11,8 @@
 #include "DbTables/inc/TrkAlignTracker.hh"
 #include "DbTables/inc/TrkAlignPlane.hh"
 #include "DbTables/inc/TrkAlignPanel.hh"
-#include "DbTables/inc/AnaTrkQualDb.hh"
+#include "DbTables/inc/DIRACtoCalo.hh"
+#include "DbTables/inc/CalotoDIRAC.hh"
 
 mu2e::DbTable::ptr_t mu2e::DbTableFactory::newTable(std::string const& name) {
   if (name=="TstCalib1") {
@@ -34,12 +35,19 @@ mu2e::DbTable::ptr_t mu2e::DbTableFactory::newTable(std::string const& name) {
     return std::shared_ptr<mu2e::DbTable>(new mu2e::TrkAlignPlane());
   } else if (name=="TrkAlignPanel") {
     return std::shared_ptr<mu2e::DbTable>(new mu2e::TrkAlignPanel());
-  } else if (name=="AnaTrkQualDb") {
-    return std::shared_ptr<mu2e::DbTable>(new mu2e::AnaTrkQualDb());
+  } else if (name=="DIRACtoCalo") {
+    return std::shared_ptr<mu2e::DbTable>(new mu2e::DIRACtoCalo());
+  } else if (name=="CalotoDIRAC") {
+    return std::shared_ptr<mu2e::DbTable>(new mu2e::CalotoDIRAC());
   } else {
     throw cet::exception("DBFILE_BAD_TABLE_NAME") 
       << "DbTableFactory::newTable call with bad table name: "+name+"\n";
     
   }
 }
+
+
+
+
+
 
